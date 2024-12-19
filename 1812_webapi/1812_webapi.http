@@ -1,0 +1,31 @@
+@_1812_webapi_HostAddress = http://localhost:5213
+
+GET {{_1812_webapi_HostAddress}}/product/all
+Accept: application/json
+
+###
+
+GET {{_1812_webapi_HostAddress}}/product/1
+Accept: application/json
+
+###
+
+POST {{_1812_webapi_HostAddress}}/product
+Content-type: application/json
+{
+  "name": "Pen",
+  "price": 120
+}
+
+
+###
+
+GET {{_1812_webapi_HostAddress}}/product/search/p
+Accept: application/json
+
+###
+
+GET {{_1812_webapi_HostAddress}}/product/0/2
+Accept: application/json
+
+###
