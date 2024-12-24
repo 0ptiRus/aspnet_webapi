@@ -10,16 +10,19 @@ namespace _1812_webapi
     public class MyController : ControllerBase
     {
         private ProductDbContext context;
+        private readonly ILogger logger;
 
-        public MyController(ProductDbContext context)
+        public MyController(ProductDbContext context, ILogger<MyController> logger)
         {
             this.context = context;
+            this.logger = logger;
         }
 
         [HttpGet("all")]
         [HttpGet]
         public async Task<IResult> GetAll()
         {
+            logger.LogInformation("200 OK - Sending all products");
             return TypedResults.Ok(await context.Products.ToArrayAsync());
         }
 
@@ -29,7 +32,8 @@ namespace _1812_webapi
             Product? product = await context.Products.FirstOrDefaultAsync(p => p.Id == product_id);
             if (product is null)
             {
-                return TypedResults.NotFound($"Error: product with id {product_id} was not found!");
+                logger.LogError($"404 NOT FOUND: Product with id {product_id} was not found!");
+                return TypedResults.NotFound($"Error: product was not found!");
             }
             else
             {
@@ -47,6 +51,8 @@ namespace _1812_webapi
                     .Contains(query.ToLower()))
                 .ToListAsync();
 
+            logger.LogInformation($"200 OK - Found {products.Count} matches to query");
+
             return TypedResults.Ok(products);
         }
 
@@ -61,6 +67,8 @@ namespace _1812_webapi
                                   .Take(page_size)
                                   .ToListAsync();
 
+            logger.LogInformation($"200 OK - Sending entries from {start} to {end}");
+
             return TypedResults.Ok(products);
         }
 
@@ -69,6 +77,7 @@ namespace _1812_webapi
         {
             await context.Products.AddAsync(product);
             await context.SaveChangesAsync();
+            logger.LogInformation($"200 OK - New product added with id {product.Id}");
             return TypedResults.Ok(product);
         }
 
@@ -77,11 +86,13 @@ namespace _1812_webapi
         {
             if(!await context.Products.Where(p => p.Id == product.Id).AnyAsync())
             {
+                logger.LogError($"404 NOT FOUND - Product with id {product.Id} was not found!");
                 return TypedResults.NotFound("Product not found!");
             }
 
             context.Products.Update(product);
             await context.SaveChangesAsync();
+            logger.LogInformation($"200 OK - Updated product with id {product.Id}");
             return TypedResults.Ok(product);
         }
 
@@ -91,11 +102,13 @@ namespace _1812_webapi
             Product? product = await context.Products.FirstOrDefaultAsync(p => p.Id == product_id);
             if (product is null)
             {
-                return TypedResults.NotFound($"Error: product with id {product_id} was not found!");
+                logger.LogError($"404 NOT FOUND - Product with id {product_id} was not found!");
+                return TypedResults.NotFound($"Error: product was not found!");
             }
             context.Products.Remove(product);
             await context.SaveChangesAsync();
 
+            logger.LogInformation($"200 OK - Deleted product with id {product_id}");
             return TypedResults.Ok();
         }
     }

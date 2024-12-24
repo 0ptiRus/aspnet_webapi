@@ -1,12 +1,19 @@
 using _1812_webapi;
 using _1812_webapi.Entity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-builder.Services.AddDbContext<ProductDbContext>();
+builder.Host.UseSerilog((hostBuilder, loggerConfig) =>
+    loggerConfig.ReadFrom.Configuration(hostBuilder.Configuration));
+builder.Logging.AddConsole();
+
 builder.Services.AddScoped<MyController>();
+builder.Services.AddLogging();
+builder.Services.AddDbContext<ProductDbContext>(options => options.UseSqlite(builder.Configuration.GetConnectionString("Default")));
+
 
 builder.Services.AddControllers();
 
