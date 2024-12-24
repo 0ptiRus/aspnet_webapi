@@ -37,6 +37,7 @@ namespace _1812_webapi
             }
             else
             {
+                logger.LogInformation($"200 OK - Sending product with id {product_id}");
                 return TypedResults.Ok(product);
             }
                 
